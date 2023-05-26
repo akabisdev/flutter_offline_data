@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_offline_data/models/add_customer_response_model.dart';
+import 'package:flutter_offline_data/services/isar_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_offline_data/models/add_customer_request_model.dart';
 import 'package:flutter_offline_data/views/address_widget.dart';
@@ -21,6 +22,8 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   final _emailCont = TextEditingController();
 
   final addresses = <Address>[Address.empty()];
+
+  final service = IsarService();
 
   @override
   void dispose() {
@@ -167,6 +170,8 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   }
 
   Future<bool> _addCustomer(AddCustomer customer) async {
+    ///TODO: if network is not present store customer locally, update when network comes back
+
     var client = http.Client();
     try {
       var response = await client.post(

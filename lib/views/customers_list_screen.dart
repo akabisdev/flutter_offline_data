@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_offline_data/services/isar_service.dart';
 import 'package:flutter_offline_data/views/add_customer_screen.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,6 +17,7 @@ class CustomerListScreen extends StatefulWidget {
 
 class _CustomerListScreenState extends State<CustomerListScreen> {
   late Future<CustomerListResponse> customerList;
+  final service = IsarService();
 
   @override
   void initState() {
@@ -91,6 +93,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   }
 
   Future<CustomerListResponse> _getCustomers() async {
+    ///TODO: check if network is not present, get data from db
     var client = http.Client();
     try {
       var response = await client.get(
@@ -100,6 +103,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
       var decodedResponse =
           jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
       final r = CustomerListResponse.fromJson(decodedResponse);
+
+      ///TODO: Save this data in local db, and get data from db and return list
       return r;
     } finally {
       client.close();
