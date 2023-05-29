@@ -3,12 +3,13 @@ import 'package:isar/isar.dart';
 
 part 'address.g.dart';
 
-@collection
+@embedded
+// @collection
 class Address {
-  Id id = Isar.autoIncrement;
+  // Id id = Isar.autoIncrement;
   String? street;
   String? state;
   String? pincode;
-  @Backlink(to: 'addresses')
-  final customer = IsarLink<Customer>();
+  // @Backlink(to: 'addresses')
+  // final customer = IsarLink<Customer>();
 }

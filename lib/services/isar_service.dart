@@ -10,17 +10,22 @@ class IsarService {
     db = openDB();
   }
 
-  Future<void> saveCourse(Customer customer) async {
+  Future<void> saveCustomer(Customer customer) async {
     final isar = await db;
     isar.writeTxnSync<int>(() => isar.customers.putSync(customer));
   }
 
-  Future<List<Customer>> getAllCourses() async {
+  Future<void> saveCustomers(List<Customer> customers) async {
+    final isar = await db;
+    isar.writeTxnSync(() => isar.customers.putAllSync(customers));
+  }
+
+  Future<List<Customer>> getAllCustomers() async {
     final isar = await db;
     return await isar.customers.where().findAll();
   }
 
-  Stream<List<Customer>> listenToCourses() async* {
+  Stream<List<Customer>> listenToCustomers() async* {
     final isar = await db;
     yield* isar.customers.where().watch(fireImmediately: true);
   }
@@ -53,7 +58,7 @@ class IsarService {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationDocumentsDirectory();
       return await Isar.open(
-        [AddressSchema, CustomerSchema],
+        [CustomerSchema],
         inspector: true,
         directory: dir.path,
       );

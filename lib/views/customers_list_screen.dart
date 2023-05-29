@@ -5,8 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_offline_data/services/isar_service.dart';
 import 'package:flutter_offline_data/views/add_customer_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:isar/isar.dart';
 
 import '../models/customer_list_model.dart';
+import 'package:flutter_offline_data/entities/customer.dart' as c;
+import 'package:flutter_offline_data/entities/address.dart' as a;
 
 class CustomerListScreen extends StatefulWidget {
   const CustomerListScreen({Key? key}) : super(key: key);
@@ -16,7 +19,7 @@ class CustomerListScreen extends StatefulWidget {
 }
 
 class _CustomerListScreenState extends State<CustomerListScreen> {
-  late Future<CustomerListResponse> customerList;
+  late Future<List<c.Customer>> customerList;
   final service = IsarService();
 
   @override
@@ -46,7 +49,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
         },
         child: const Icon(Icons.add),
       ),
-      body: FutureBuilder<CustomerListResponse>(
+      body: FutureBuilder<List<c.Customer>>(
         future: customerList,
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
@@ -69,14 +72,14 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                       customerList = customerResp;
                     });
                   },
-                  child: _buildCustomerList(snapshot.data?.data ?? []));
+                  child: _buildCustomerList(snapshot.data ?? []));
           }
         },
       ),
     );
   }
 
-  Widget _buildCustomerList(List<Customer> list) {
+  Widget _buildCustomerList(List<c.Customer> list) {
     return list.isEmpty
         ? const Center(
             child: Text('No customers'),
@@ -92,7 +95,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           );
   }
 
-  Future<CustomerListResponse> _getCustomers() async {
+  Future<List<c.Customer>> _getCustomers() async {
     ///TODO: check if network is not present, get data from db
     var client = http.Client();
     try {
@@ -103,9 +106,32 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
       var decodedResponse =
           jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
       final r = CustomerListResponse.fromJson(decodedResponse);
+      final customerList = r.data.map((e) {
+        final addressList = e.addresses.map((e) {
+          print(jsonEncode(e));
+          final address = a.Address()
+            ..state = e.state
+            ..street = e.street
+            ..pincode = e.pincode;
+          return address;
+        }).toList();
+        print(jsonEncode(e));
+        final customer = c.Customer()
+          ..name = e.name
+          ..age = e.age
+          ..customerId = e.id
+          ..email = e.email
+          ..addresses = addressList;
+        return customer;
+      }).toList();
+      // print(jsonEncode(customerList));
 
-      ///TODO: Save this data in local db, and get data from db and return list
-      return r;
+      ///Save this data in local db, and get data from db and return list
+      service.saveCustomers(customerList);
+      return customerList;
+    } catch (e) {
+      print('Exception : $e');
+      return [];
     } finally {
       client.close();
     }

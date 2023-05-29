@@ -3,17 +3,13 @@
 part of 'address.dart';
 
 // **************************************************************************
-// IsarCollectionGenerator
+// IsarEmbeddedGenerator
 // **************************************************************************
 
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
 
-extension GetAddressCollection on Isar {
-  IsarCollection<Address> get address => this.collection();
-}
-
-const AddressSchema = CollectionSchema(
+const AddressSchema = Schema(
   name: r'Address',
   id: 3544600503126319553,
   properties: {
@@ -37,22 +33,6 @@ const AddressSchema = CollectionSchema(
   serialize: _addressSerialize,
   deserialize: _addressDeserialize,
   deserializeProp: _addressDeserializeProp,
-  idName: r'id',
-  indexes: {},
-  links: {
-    r'customer': LinkSchema(
-      id: -457926122855660239,
-      name: r'customer',
-      target: r'Customer',
-      single: true,
-      linkName: r'addresses',
-    )
-  },
-  embeddedSchemas: {},
-  getId: _addressGetId,
-  getLinks: _addressGetLinks,
-  attach: _addressAttach,
-  version: '3.1.0',
 );
 
 int _addressEstimateSize(
@@ -100,7 +80,6 @@ Address _addressDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Address();
-  object.id = id;
   object.pincode = reader.readStringOrNull(offsets[0]);
   object.state = reader.readStringOrNull(offsets[1]);
   object.street = reader.readStringOrNull(offsets[2]);
@@ -125,148 +104,8 @@ P _addressDeserializeProp<P>(
   }
 }
 
-Id _addressGetId(Address object) {
-  return object.id;
-}
-
-List<IsarLinkBase<dynamic>> _addressGetLinks(Address object) {
-  return [object.customer];
-}
-
-void _addressAttach(IsarCollection<dynamic> col, Id id, Address object) {
-  object.id = id;
-  object.customer.attach(col, col.isar.collection<Customer>(), r'customer', id);
-}
-
-extension AddressQueryWhereSort on QueryBuilder<Address, Address, QWhere> {
-  QueryBuilder<Address, Address, QAfterWhere> anyId() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(const IdWhereClause.any());
-    });
-  }
-}
-
-extension AddressQueryWhere on QueryBuilder<Address, Address, QWhereClause> {
-  QueryBuilder<Address, Address, QAfterWhereClause> idEqualTo(Id id) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: id,
-        upper: id,
-      ));
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterWhereClause> idNotEqualTo(Id id) {
-    return QueryBuilder.apply(this, (query) {
-      if (query.whereSort == Sort.asc) {
-        return query
-            .addWhereClause(
-              IdWhereClause.lessThan(upper: id, includeUpper: false),
-            )
-            .addWhereClause(
-              IdWhereClause.greaterThan(lower: id, includeLower: false),
-            );
-      } else {
-        return query
-            .addWhereClause(
-              IdWhereClause.greaterThan(lower: id, includeLower: false),
-            )
-            .addWhereClause(
-              IdWhereClause.lessThan(upper: id, includeUpper: false),
-            );
-      }
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterWhereClause> idGreaterThan(Id id,
-      {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IdWhereClause.greaterThan(lower: id, includeLower: include),
-      );
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterWhereClause> idLessThan(Id id,
-      {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IdWhereClause.lessThan(upper: id, includeUpper: include),
-      );
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterWhereClause> idBetween(
-    Id lowerId,
-    Id upperId, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerId,
-        includeLower: includeLower,
-        upper: upperId,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-}
-
 extension AddressQueryFilter
     on QueryBuilder<Address, Address, QFilterCondition> {
-  QueryBuilder<Address, Address, QAfterFilterCondition> idEqualTo(Id value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'id',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterFilterCondition> idGreaterThan(
-    Id value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterFilterCondition> idLessThan(
-    Id value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterFilterCondition> idBetween(
-    Id lower,
-    Id upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'id',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
   QueryBuilder<Address, Address, QAfterFilterCondition> pincodeIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -708,159 +547,3 @@ extension AddressQueryFilter
 
 extension AddressQueryObject
     on QueryBuilder<Address, Address, QFilterCondition> {}
-
-extension AddressQueryLinks
-    on QueryBuilder<Address, Address, QFilterCondition> {
-  QueryBuilder<Address, Address, QAfterFilterCondition> customer(
-      FilterQuery<Customer> q) {
-    return QueryBuilder.apply(this, (query) {
-      return query.link(q, r'customer');
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterFilterCondition> customerIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'customer', 0, true, 0, true);
-    });
-  }
-}
-
-extension AddressQuerySortBy on QueryBuilder<Address, Address, QSortBy> {
-  QueryBuilder<Address, Address, QAfterSortBy> sortByPincode() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'pincode', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterSortBy> sortByPincodeDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'pincode', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterSortBy> sortByState() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'state', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterSortBy> sortByStateDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'state', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterSortBy> sortByStreet() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'street', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterSortBy> sortByStreetDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'street', Sort.desc);
-    });
-  }
-}
-
-extension AddressQuerySortThenBy
-    on QueryBuilder<Address, Address, QSortThenBy> {
-  QueryBuilder<Address, Address, QAfterSortBy> thenById() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'id', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterSortBy> thenByIdDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'id', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterSortBy> thenByPincode() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'pincode', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterSortBy> thenByPincodeDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'pincode', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterSortBy> thenByState() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'state', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterSortBy> thenByStateDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'state', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterSortBy> thenByStreet() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'street', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Address, Address, QAfterSortBy> thenByStreetDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'street', Sort.desc);
-    });
-  }
-}
-
-extension AddressQueryWhereDistinct
-    on QueryBuilder<Address, Address, QDistinct> {
-  QueryBuilder<Address, Address, QDistinct> distinctByPincode(
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'pincode', caseSensitive: caseSensitive);
-    });
-  }
-
-  QueryBuilder<Address, Address, QDistinct> distinctByState(
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'state', caseSensitive: caseSensitive);
-    });
-  }
-
-  QueryBuilder<Address, Address, QDistinct> distinctByStreet(
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'street', caseSensitive: caseSensitive);
-    });
-  }
-}
-
-extension AddressQueryProperty
-    on QueryBuilder<Address, Address, QQueryProperty> {
-  QueryBuilder<Address, int, QQueryOperations> idProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'id');
-    });
-  }
-
-  QueryBuilder<Address, String?, QQueryOperations> pincodeProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'pincode');
-    });
-  }
-
-  QueryBuilder<Address, String?, QQueryOperations> stateProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'state');
-    });
-  }
-
-  QueryBuilder<Address, String?, QQueryOperations> streetProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'street');
-    });
-  }
-}

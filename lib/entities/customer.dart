@@ -10,5 +10,6 @@ class Customer {
   late String name;
   late int age;
   late String email;
-  final addresses = IsarLinks<Address>();
+  late List<Address> addresses;
+  // late IsarLinks<Address> addresses = IsarLinks<Address>();
 }
