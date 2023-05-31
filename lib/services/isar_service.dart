@@ -1,5 +1,7 @@
+import 'package:flutter_offline_data/entities/address.dart' as a;
 import 'package:flutter_offline_data/entities/address.dart';
 import 'package:flutter_offline_data/entities/customer.dart';
+import 'package:flutter_offline_data/entities/new_customer.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -13,6 +15,16 @@ class IsarService {
   Future<void> saveCustomer(Customer customer) async {
     final isar = await db;
     isar.writeTxnSync<int>(() => isar.customers.putSync(customer));
+  }
+
+  Future<void> saveNewCustomer(NewCustomer newCustomer) async {
+    final isar = await db;
+    isar.writeTxnSync(() => isar.newCustomers.putSync(newCustomer));
+  }
+
+  Future<void> saveAddresses(List<a.Address> addresses) async {
+    final isar = await db;
+    isar.writeTxnSync(() => isar.address.putAllSync(addresses));
   }
 
   Future<void> saveCustomers(List<Customer> customers) async {
@@ -54,11 +66,23 @@ class IsarService {
   //   return teacher;
   // }
 
+  Future<Customer?> getCustomer(String customerId) async {
+    final isar = await db;
+    final customer = await isar.customers.getByCustomerId(customerId);
+    return customer;
+  }
+
+  Future<Address?> getAddress(String addressId) async {
+    final isar = await db;
+    final address = await isar.address.getByAddressId(addressId);
+    return address;
+  }
+
   Future<Isar> openDB() async {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationDocumentsDirectory();
       return await Isar.open(
-        [CustomerSchema],
+        [CustomerSchema, AddressSchema, NewCustomerSchema],
         inspector: true,
         directory: dir.path,
       );

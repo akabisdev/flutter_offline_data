@@ -20,8 +20,7 @@ const CustomerSchema = CollectionSchema(
     r'addresses': PropertySchema(
       id: 0,
       name: r'addresses',
-      type: IsarType.objectList,
-      target: r'Address',
+      type: IsarType.stringList,
     ),
     r'age': PropertySchema(
       id: 1,
@@ -49,9 +48,23 @@ const CustomerSchema = CollectionSchema(
   deserialize: _customerDeserialize,
   deserializeProp: _customerDeserializeProp,
   idName: r'id',
-  indexes: {},
+  indexes: {
+    r'customerId': IndexSchema(
+      id: 1498639901530368639,
+      name: r'customerId',
+      unique: true,
+      replace: true,
+      properties: [
+        IndexPropertySchema(
+          name: r'customerId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    )
+  },
   links: {},
-  embeddedSchemas: {r'Address': AddressSchema},
+  embeddedSchemas: {},
   getId: _customerGetId,
   getLinks: _customerGetLinks,
   attach: _customerAttach,
@@ -66,10 +79,9 @@ int _customerEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.addresses.length * 3;
   {
-    final offsets = allOffsets[Address]!;
     for (var i = 0; i < object.addresses.length; i++) {
       final value = object.addresses[i];
-      bytesCount += AddressSchema.estimateSize(value, offsets, allOffsets);
+      bytesCount += value.length * 3;
     }
   }
   bytesCount += 3 + object.customerId.length * 3;
@@ -84,12 +96,7 @@ void _customerSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeObjectList<Address>(
-    offsets[0],
-    allOffsets,
-    AddressSchema.serialize,
-    object.addresses,
-  );
+  writer.writeStringList(offsets[0], object.addresses);
   writer.writeLong(offsets[1], object.age);
   writer.writeString(offsets[2], object.customerId);
   writer.writeString(offsets[3], object.email);
@@ -103,6 +110,7 @@ Customer _customerDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Customer();
+  object.addresses = reader.readStringList(offsets[0]) ?? [];
   object.age = reader.readLong(offsets[1]);
   object.customerId = reader.readString(offsets[2]);
   object.email = reader.readString(offsets[3]);
@@ -119,13 +127,7 @@ P _customerDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readObjectList<Address>(
-            offset,
-            AddressSchema.deserialize,
-            allOffsets,
-            Address(),
-          ) ??
-          []) as P;
+      return (reader.readStringList(offset) ?? []) as P;
     case 1:
       return (reader.readLong(offset)) as P;
     case 2:
@@ -149,6 +151,61 @@ List<IsarLinkBase<dynamic>> _customerGetLinks(Customer object) {
 
 void _customerAttach(IsarCollection<dynamic> col, Id id, Customer object) {
   object.id = id;
+}
+
+extension CustomerByIndex on IsarCollection<Customer> {
+  Future<Customer?> getByCustomerId(String customerId) {
+    return getByIndex(r'customerId', [customerId]);
+  }
+
+  Customer? getByCustomerIdSync(String customerId) {
+    return getByIndexSync(r'customerId', [customerId]);
+  }
+
+  Future<bool> deleteByCustomerId(String customerId) {
+    return deleteByIndex(r'customerId', [customerId]);
+  }
+
+  bool deleteByCustomerIdSync(String customerId) {
+    return deleteByIndexSync(r'customerId', [customerId]);
+  }
+
+  Future<List<Customer?>> getAllByCustomerId(List<String> customerIdValues) {
+    final values = customerIdValues.map((e) => [e]).toList();
+    return getAllByIndex(r'customerId', values);
+  }
+
+  List<Customer?> getAllByCustomerIdSync(List<String> customerIdValues) {
+    final values = customerIdValues.map((e) => [e]).toList();
+    return getAllByIndexSync(r'customerId', values);
+  }
+
+  Future<int> deleteAllByCustomerId(List<String> customerIdValues) {
+    final values = customerIdValues.map((e) => [e]).toList();
+    return deleteAllByIndex(r'customerId', values);
+  }
+
+  int deleteAllByCustomerIdSync(List<String> customerIdValues) {
+    final values = customerIdValues.map((e) => [e]).toList();
+    return deleteAllByIndexSync(r'customerId', values);
+  }
+
+  Future<Id> putByCustomerId(Customer object) {
+    return putByIndex(r'customerId', object);
+  }
+
+  Id putByCustomerIdSync(Customer object, {bool saveLinks = true}) {
+    return putByIndexSync(r'customerId', object, saveLinks: saveLinks);
+  }
+
+  Future<List<Id>> putAllByCustomerId(List<Customer> objects) {
+    return putAllByIndex(r'customerId', objects);
+  }
+
+  List<Id> putAllByCustomerIdSync(List<Customer> objects,
+      {bool saveLinks = true}) {
+    return putAllByIndexSync(r'customerId', objects, saveLinks: saveLinks);
+  }
 }
 
 extension CustomerQueryWhereSort on QueryBuilder<Customer, Customer, QWhere> {
@@ -224,10 +281,191 @@ extension CustomerQueryWhere on QueryBuilder<Customer, Customer, QWhereClause> {
       ));
     });
   }
+
+  QueryBuilder<Customer, Customer, QAfterWhereClause> customerIdEqualTo(
+      String customerId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'customerId',
+        value: [customerId],
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterWhereClause> customerIdNotEqualTo(
+      String customerId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'customerId',
+              lower: [],
+              upper: [customerId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'customerId',
+              lower: [customerId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'customerId',
+              lower: [customerId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'customerId',
+              lower: [],
+              upper: [customerId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
 }
 
 extension CustomerQueryFilter
     on QueryBuilder<Customer, Customer, QFilterCondition> {
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      addressesElementEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'addresses',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      addressesElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'addresses',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      addressesElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'addresses',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      addressesElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'addresses',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      addressesElementStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'addresses',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      addressesElementEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'addresses',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      addressesElementContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'addresses',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      addressesElementMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'addresses',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      addressesElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'addresses',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      addressesElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'addresses',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<Customer, Customer, QAfterFilterCondition>
       addressesLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
@@ -814,14 +1052,7 @@ extension CustomerQueryFilter
 }
 
 extension CustomerQueryObject
-    on QueryBuilder<Customer, Customer, QFilterCondition> {
-  QueryBuilder<Customer, Customer, QAfterFilterCondition> addressesElement(
-      FilterQuery<Address> q) {
-    return QueryBuilder.apply(this, (query) {
-      return query.object(q, r'addresses');
-    });
-  }
-}
+    on QueryBuilder<Customer, Customer, QFilterCondition> {}
 
 extension CustomerQueryLinks
     on QueryBuilder<Customer, Customer, QFilterCondition> {}
@@ -941,6 +1172,12 @@ extension CustomerQuerySortThenBy
 
 extension CustomerQueryWhereDistinct
     on QueryBuilder<Customer, Customer, QDistinct> {
+  QueryBuilder<Customer, Customer, QDistinct> distinctByAddresses() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'addresses');
+    });
+  }
+
   QueryBuilder<Customer, Customer, QDistinct> distinctByAge() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'age');
@@ -977,7 +1214,7 @@ extension CustomerQueryProperty
     });
   }
 
-  QueryBuilder<Customer, List<Address>, QQueryOperations> addressesProperty() {
+  QueryBuilder<Customer, List<String>, QQueryOperations> addressesProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'addresses');
     });

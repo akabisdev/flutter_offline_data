@@ -3,28 +3,37 @@
 part of 'address.dart';
 
 // **************************************************************************
-// IsarEmbeddedGenerator
+// IsarCollectionGenerator
 // **************************************************************************
 
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
 
-const AddressSchema = Schema(
+extension GetAddressCollection on Isar {
+  IsarCollection<Address> get address => this.collection();
+}
+
+const AddressSchema = CollectionSchema(
   name: r'Address',
   id: 3544600503126319553,
   properties: {
-    r'pincode': PropertySchema(
+    r'addressId': PropertySchema(
       id: 0,
+      name: r'addressId',
+      type: IsarType.string,
+    ),
+    r'pincode': PropertySchema(
+      id: 1,
       name: r'pincode',
       type: IsarType.string,
     ),
     r'state': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'state',
       type: IsarType.string,
     ),
     r'street': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'street',
       type: IsarType.string,
     )
@@ -33,6 +42,28 @@ const AddressSchema = Schema(
   serialize: _addressSerialize,
   deserialize: _addressDeserialize,
   deserializeProp: _addressDeserializeProp,
+  idName: r'id',
+  indexes: {
+    r'addressId': IndexSchema(
+      id: -4281582689294981551,
+      name: r'addressId',
+      unique: true,
+      replace: true,
+      properties: [
+        IndexPropertySchema(
+          name: r'addressId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    )
+  },
+  links: {},
+  embeddedSchemas: {},
+  getId: _addressGetId,
+  getLinks: _addressGetLinks,
+  attach: _addressAttach,
+  version: '3.1.0',
 );
 
 int _addressEstimateSize(
@@ -41,6 +72,7 @@ int _addressEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.addressId.length * 3;
   {
     final value = object.pincode;
     if (value != null) {
@@ -68,9 +100,10 @@ void _addressSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.pincode);
-  writer.writeString(offsets[1], object.state);
-  writer.writeString(offsets[2], object.street);
+  writer.writeString(offsets[0], object.addressId);
+  writer.writeString(offsets[1], object.pincode);
+  writer.writeString(offsets[2], object.state);
+  writer.writeString(offsets[3], object.street);
 }
 
 Address _addressDeserialize(
@@ -80,9 +113,11 @@ Address _addressDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Address();
-  object.pincode = reader.readStringOrNull(offsets[0]);
-  object.state = reader.readStringOrNull(offsets[1]);
-  object.street = reader.readStringOrNull(offsets[2]);
+  object.addressId = reader.readString(offsets[0]);
+  object.id = id;
+  object.pincode = reader.readStringOrNull(offsets[1]);
+  object.state = reader.readStringOrNull(offsets[2]);
+  object.street = reader.readStringOrNull(offsets[3]);
   return object;
 }
 
@@ -94,18 +129,389 @@ P _addressDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 1:
       return (reader.readStringOrNull(offset)) as P;
     case 2:
+      return (reader.readStringOrNull(offset)) as P;
+    case 3:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
+Id _addressGetId(Address object) {
+  return object.id;
+}
+
+List<IsarLinkBase<dynamic>> _addressGetLinks(Address object) {
+  return [];
+}
+
+void _addressAttach(IsarCollection<dynamic> col, Id id, Address object) {
+  object.id = id;
+}
+
+extension AddressByIndex on IsarCollection<Address> {
+  Future<Address?> getByAddressId(String addressId) {
+    return getByIndex(r'addressId', [addressId]);
+  }
+
+  Address? getByAddressIdSync(String addressId) {
+    return getByIndexSync(r'addressId', [addressId]);
+  }
+
+  Future<bool> deleteByAddressId(String addressId) {
+    return deleteByIndex(r'addressId', [addressId]);
+  }
+
+  bool deleteByAddressIdSync(String addressId) {
+    return deleteByIndexSync(r'addressId', [addressId]);
+  }
+
+  Future<List<Address?>> getAllByAddressId(List<String> addressIdValues) {
+    final values = addressIdValues.map((e) => [e]).toList();
+    return getAllByIndex(r'addressId', values);
+  }
+
+  List<Address?> getAllByAddressIdSync(List<String> addressIdValues) {
+    final values = addressIdValues.map((e) => [e]).toList();
+    return getAllByIndexSync(r'addressId', values);
+  }
+
+  Future<int> deleteAllByAddressId(List<String> addressIdValues) {
+    final values = addressIdValues.map((e) => [e]).toList();
+    return deleteAllByIndex(r'addressId', values);
+  }
+
+  int deleteAllByAddressIdSync(List<String> addressIdValues) {
+    final values = addressIdValues.map((e) => [e]).toList();
+    return deleteAllByIndexSync(r'addressId', values);
+  }
+
+  Future<Id> putByAddressId(Address object) {
+    return putByIndex(r'addressId', object);
+  }
+
+  Id putByAddressIdSync(Address object, {bool saveLinks = true}) {
+    return putByIndexSync(r'addressId', object, saveLinks: saveLinks);
+  }
+
+  Future<List<Id>> putAllByAddressId(List<Address> objects) {
+    return putAllByIndex(r'addressId', objects);
+  }
+
+  List<Id> putAllByAddressIdSync(List<Address> objects,
+      {bool saveLinks = true}) {
+    return putAllByIndexSync(r'addressId', objects, saveLinks: saveLinks);
+  }
+}
+
+extension AddressQueryWhereSort on QueryBuilder<Address, Address, QWhere> {
+  QueryBuilder<Address, Address, QAfterWhere> anyId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+}
+
+extension AddressQueryWhere on QueryBuilder<Address, Address, QWhereClause> {
+  QueryBuilder<Address, Address, QAfterWhereClause> idEqualTo(Id id) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IdWhereClause.between(
+        lower: id,
+        upper: id,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterWhereClause> idNotEqualTo(Id id) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            )
+            .addWhereClause(
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            )
+            .addWhereClause(
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterWhereClause> idGreaterThan(Id id,
+      {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IdWhereClause.greaterThan(lower: id, includeLower: include),
+      );
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterWhereClause> idLessThan(Id id,
+      {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IdWhereClause.lessThan(upper: id, includeUpper: include),
+      );
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterWhereClause> idBetween(
+    Id lowerId,
+    Id upperId, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IdWhereClause.between(
+        lower: lowerId,
+        includeLower: includeLower,
+        upper: upperId,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterWhereClause> addressIdEqualTo(
+      String addressId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'addressId',
+        value: [addressId],
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterWhereClause> addressIdNotEqualTo(
+      String addressId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'addressId',
+              lower: [],
+              upper: [addressId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'addressId',
+              lower: [addressId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'addressId',
+              lower: [addressId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'addressId',
+              lower: [],
+              upper: [addressId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+}
+
 extension AddressQueryFilter
     on QueryBuilder<Address, Address, QFilterCondition> {
+  QueryBuilder<Address, Address, QAfterFilterCondition> addressIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'addressId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> addressIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'addressId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> addressIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'addressId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> addressIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'addressId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> addressIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'addressId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> addressIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'addressId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> addressIdContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'addressId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> addressIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'addressId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> addressIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'addressId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> addressIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'addressId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> idEqualTo(Id value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> idGreaterThan(
+    Id value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> idLessThan(
+    Id value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterFilterCondition> idBetween(
+    Id lower,
+    Id upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'id',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Address, Address, QAfterFilterCondition> pincodeIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -547,3 +953,183 @@ extension AddressQueryFilter
 
 extension AddressQueryObject
     on QueryBuilder<Address, Address, QFilterCondition> {}
+
+extension AddressQueryLinks
+    on QueryBuilder<Address, Address, QFilterCondition> {}
+
+extension AddressQuerySortBy on QueryBuilder<Address, Address, QSortBy> {
+  QueryBuilder<Address, Address, QAfterSortBy> sortByAddressId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'addressId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> sortByAddressIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'addressId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> sortByPincode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pincode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> sortByPincodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pincode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> sortByState() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'state', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> sortByStateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'state', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> sortByStreet() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'street', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> sortByStreetDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'street', Sort.desc);
+    });
+  }
+}
+
+extension AddressQuerySortThenBy
+    on QueryBuilder<Address, Address, QSortThenBy> {
+  QueryBuilder<Address, Address, QAfterSortBy> thenByAddressId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'addressId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> thenByAddressIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'addressId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> thenById() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'id', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> thenByIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> thenByPincode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pincode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> thenByPincodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pincode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> thenByState() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'state', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> thenByStateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'state', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> thenByStreet() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'street', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Address, Address, QAfterSortBy> thenByStreetDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'street', Sort.desc);
+    });
+  }
+}
+
+extension AddressQueryWhereDistinct
+    on QueryBuilder<Address, Address, QDistinct> {
+  QueryBuilder<Address, Address, QDistinct> distinctByAddressId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'addressId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Address, Address, QDistinct> distinctByPincode(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'pincode', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Address, Address, QDistinct> distinctByState(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'state', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Address, Address, QDistinct> distinctByStreet(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'street', caseSensitive: caseSensitive);
+    });
+  }
+}
+
+extension AddressQueryProperty
+    on QueryBuilder<Address, Address, QQueryProperty> {
+  QueryBuilder<Address, int, QQueryOperations> idProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Address, String, QQueryOperations> addressIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'addressId');
+    });
+  }
+
+  QueryBuilder<Address, String?, QQueryOperations> pincodeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'pincode');
+    });
+  }
+
+  QueryBuilder<Address, String?, QQueryOperations> stateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'state');
+    });
+  }
+
+  QueryBuilder<Address, String?, QQueryOperations> streetProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'street');
+    });
+  }
+}

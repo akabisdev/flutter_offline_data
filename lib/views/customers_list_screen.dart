@@ -4,8 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_offline_data/services/isar_service.dart';
 import 'package:flutter_offline_data/views/add_customer_screen.dart';
+import 'package:flutter_offline_data/views/customer_details_screen.dart';
 import 'package:http/http.dart' as http;
-import 'package:isar/isar.dart';
 
 import '../models/customer_list_model.dart';
 import 'package:flutter_offline_data/entities/customer.dart' as c;
@@ -89,6 +89,18 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
             itemCount: list.length,
             itemBuilder: (context, index) {
               return ListTile(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return CustomerDetailsScreen(
+                          customerId: list[index].customerId,
+                        );
+                      },
+                    ),
+                  );
+                },
                 title: Text(list[index].name),
               );
             },
@@ -101,7 +113,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     try {
       var response = await client.get(
         Uri.parse(
-            'http://192.168.68.126:3000/users/m-customers?limit=20&pageNumber=1'),
+            'http://192.168.68.112:3000/users/m-customers?limit=20&pageNumber=1'),
       );
       var decodedResponse =
           jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
@@ -110,18 +122,22 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
         final addressList = e.addresses.map((e) {
           print(jsonEncode(e));
           final address = a.Address()
+            ..addressId = e.id
             ..state = e.state
             ..street = e.street
             ..pincode = e.pincode;
           return address;
         }).toList();
-        print(jsonEncode(e));
+
+        ///Save addresses
+        service.saveAddresses(addressList);
+        final addressIds = addressList.map((e) => e.addressId).toList();
         final customer = c.Customer()
           ..name = e.name
           ..age = e.age
           ..customerId = e.id
           ..email = e.email
-          ..addresses = addressList;
+          ..addresses = addressIds;
         return customer;
       }).toList();
       // print(jsonEncode(customerList));

@@ -6,10 +6,11 @@ part 'customer.g.dart';
 @collection
 class Customer {
   Id id = Isar.autoIncrement;
+  @Index(unique: true, replace: true)
   late String customerId; // ID can be of any type
   late String name;
   late int age;
   late String email;
-  late List<Address> addresses;
-  // late IsarLinks<Address> addresses = IsarLinks<Address>();
+  // late List<Address> addresses;
+  late List<String> addresses;
 }

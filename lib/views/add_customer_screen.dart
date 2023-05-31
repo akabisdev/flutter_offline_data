@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_offline_data/models/add_customer_response_model.dart';
 import 'package:flutter_offline_data/services/isar_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_offline_data/models/add_customer_request_model.dart';
 import 'package:flutter_offline_data/views/address_widget.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter_offline_data/entities/address.dart' as a;
+import 'package:flutter_offline_data/entities/new_customer.dart' as nc;
 
 class AddCustomerScreen extends StatefulWidget {
   const AddCustomerScreen({Key? key}) : super(key: key);
@@ -171,12 +173,30 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
   Future<bool> _addCustomer(AddCustomer customer) async {
     ///TODO: if network is not present store customer locally, update when network comes back
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      ///TODO: save in local db
+      final newCustomer = nc.NewCustomer()
+        ..name = customer.name
+        ..email = customer.email
+        ..age = customer.age
+        ..addresses = customer.addresses.map((e) {
+          final add = nc.Add()
+            ..pincode = e.pincode
+            ..state = e.state
+            ..street = e.street;
+          return add;
+        }).toList();
+
+      service.saveNewCustomer(newCustomer);
+      return false;
+    }
 
     var client = http.Client();
     try {
       var response = await client.post(
         Uri.parse(
-          'http://192.168.68.126:3000/users/m-customers',
+          'http://192.168.68.112:3000/users/m-customers',
         ),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(customer),

@@ -1,15 +1,13 @@
-import 'package:flutter_offline_data/entities/customer.dart';
 import 'package:isar/isar.dart';
 
 part 'address.g.dart';
 
-@embedded
-// @collection
+@collection
 class Address {
-  // Id id = Isar.autoIncrement;
+  Id id = Isar.autoIncrement;
+  @Index(unique: true, replace: true)
+  late String addressId;
   String? street;
   String? state;
   String? pincode;
-  // @Backlink(to: 'addresses')
-  // final customer = IsarLink<Customer>();
 }
