@@ -78,6 +78,21 @@ class IsarService {
     return address;
   }
 
+  Future<List<NewCustomer>> getNewCustomers() async {
+    final isar = await db;
+    final nc = await isar.newCustomers.where().findAll();
+    return nc;
+  }
+
+  Future<void> deleteNewCustomer(NewCustomer newCustomer) async {
+    try {
+      final isar = await db;
+      await isar.writeTxn(() => isar.newCustomers.delete(newCustomer.id));
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future<Isar> openDB() async {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationDocumentsDirectory();

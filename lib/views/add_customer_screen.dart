@@ -196,7 +196,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     try {
       var response = await client.post(
         Uri.parse(
-          'http://192.168.68.112:3000/users/m-customers',
+          'http://192.168.68.109:3000/users/m-customers',
         ),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(customer),

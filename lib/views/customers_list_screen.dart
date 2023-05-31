@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_offline_data/models/add_customer_request_model.dart'
+    as arm;
 import 'package:flutter_offline_data/services/isar_service.dart';
 import 'package:flutter_offline_data/views/add_customer_screen.dart';
 import 'package:flutter_offline_data/views/customer_details_screen.dart';
@@ -37,6 +39,15 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Customers'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await _updateNewCustomerData();
+              setState(() {});
+            },
+            icon: const Icon(Icons.sync),
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -113,7 +124,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     try {
       var response = await client.get(
         Uri.parse(
-            'http://192.168.68.112:3000/users/m-customers?limit=20&pageNumber=1'),
+            'http://192.168.68.109:3000/users/m-customers?limit=20&pageNumber=1'),
       );
       var decodedResponse =
           jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
@@ -150,6 +161,45 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
       return [];
     } finally {
       client.close();
+    }
+  }
+
+  Future<void> _updateNewCustomerData() async {
+    final nc = await service.getNewCustomers();
+    if (nc.isNotEmpty) {
+      for (var newCustomer in nc) {
+        var client = http.Client();
+        try {
+          final ncAdd = newCustomer.addresses.map((e) {
+            return arm.Address(
+              street: e.street!,
+              state: e.state!,
+              pincode: e.pincode!,
+            );
+          }).toList();
+          final nc = arm.AddCustomer(
+            name: newCustomer.name,
+            age: newCustomer.age,
+            email: newCustomer.email,
+            addresses: ncAdd,
+          );
+          var response = await client.post(
+            Uri.parse(
+              'http://192.168.68.109:3000/users/m-customers',
+            ),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(nc),
+          );
+          print('Response : ${response.body}');
+
+          ///Delete new customer from db
+          await service.deleteNewCustomer(newCustomer);
+        } catch (e) {
+          print(e);
+        } finally {
+          client.close();
+        }
+      }
     }
   }
 }
